@@ -24,7 +24,6 @@ static void resize(int width, int height)
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     glFrustum(-ar, ar, -1.0, 1.0, 2.0, 25.0);
-
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity() ;
 }
@@ -41,33 +40,22 @@ void DecreaseYValue(int value)
 
 void DrawSinglePipe(double pipeX,double pipeSpaceY)
 {
-    glBegin(GL_POLYGON);
-    //upside
-    glVertex3d(pipeX - defaultPipeWidth/2,pipeSpaceY + defaultPipeSpacing/2 ,-10);
-    glVertex3d(pipeX + defaultPipeWidth/2,pipeSpaceY + defaultPipeSpacing/2 ,-10);
-    glVertex3d(pipeX + defaultPipeWidth/2,pipeSpaceY + defaultPipeSpacing/2 + defaultPipeHeight ,-10);
-    glVertex3d(pipeX - defaultPipeWidth/2,pipeSpaceY + defaultPipeSpacing/2 + defaultPipeHeight ,-10);
-    glEnd();
-
-    glBegin(GL_POLYGON);
-    //downSide
-
-    glVertex3d(pipeX - defaultPipeWidth/2,pipeSpaceY + defaultPipeSpacing/2 - defaultPipeHeight - defaultPipeSpacing ,-10);
-    glVertex3d(pipeX + defaultPipeWidth/2,pipeSpaceY + defaultPipeSpacing/2 - defaultPipeHeight - defaultPipeSpacing ,-10);
-    glVertex3d(pipeX + defaultPipeWidth/2,pipeSpaceY + defaultPipeSpacing/2 - defaultPipeSpacing ,-10);
-    glVertex3d(pipeX - defaultPipeWidth/2,pipeSpaceY + defaultPipeSpacing/2 - defaultPipeSpacing ,-10);
-    glEnd();
-
-    glFlush();
+    glColor3f(0,1,0);
+    glPushMatrix();
+        glTranslated(pipeX,pipeSpaceY + defaultPipeSpacing/2 + defaultPipeHeight,-10);
+        glRotated(90,1,0,0);
+        glutSolidCylinder(defaultPipeWidth/2,defaultPipeHeight,16,16);
+    glPopMatrix();
+    glPushMatrix();
+        glTranslated(pipeX,pipeSpaceY - defaultPipeSpacing/2 ,-10);
+        glRotated(90,1,0,0);
+        glutSolidCylinder(defaultPipeWidth/2,defaultPipeHeight,16,16);
+    glPopMatrix();
 }
 
 
 void DrawPipes()
 {
-    glClear (GL_COLOR_BUFFER_BIT);
-    glColor3f(0,1,0);
-
-    //First Pipe
     firstPipeSpaceY = 2;
     DrawSinglePipe(firstPipeX,firstPipeSpaceY);
 
@@ -91,6 +79,9 @@ static void display(void)
 
     //Main Character
     glColor3d(1.0,1.0,0);
+    glPushMatrix();
+
+
     glPushMatrix();
         glTranslated(-5,currentY,-10);
         glRotated(a,0,0,1);
