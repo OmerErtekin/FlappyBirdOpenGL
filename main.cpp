@@ -10,9 +10,9 @@ static double calculatedY = 0;
 static double gravity = 0.035;
 static double gravityWithTime = 0.02;
 static double jumpPower = 1.5;
-static double firstPipeX = -3,secondPipeX = 0,thirdPipeX = 3;
+static double firstPipeX = -4,secondPipeX = -0.5,thirdPipeX = 3,fourthPipeX = 6.5;
 
-static double firstPipeSpaceY,secondPipeSpaceY,thirdPipeSpaceY;
+static double firstPipeSpaceY,secondPipeSpaceY,thirdPipeSpaceY,fourthPipeSpaceY;
 static double defaultPipeSpacing = 3;
 static double defaultPipeWidth = 1.5,defaultPipeHeight = 10;
 
@@ -28,14 +28,14 @@ static void resize(int width, int height)
     glLoadIdentity() ;
 }
 
-void DecreaseYValue(int value)
+void DecreasePlayerYValue(int value)
 {
     timeSinceUpArrow += gravityWithTime * playerSize;
 
     calculatedY = currentY - (timeSinceUpArrow + gravity) * playerSize;
     currentY = std::max(-4.5,calculatedY);
     glutPostRedisplay();
-    glutTimerFunc(25, DecreaseYValue, 0);
+    glutTimerFunc(25, DecreasePlayerYValue, 0);
 }
 
 void DrawSinglePipe(double pipeX,double pipeSpaceY)
@@ -56,6 +56,8 @@ void DrawSinglePipe(double pipeX,double pipeSpaceY)
 
 void DrawPipes()
 {
+    //TODO : bunlari ekranda ilerletip ekrandan kayboldukça yeni pozisyonlarina getirme
+    //Default olarak 4 tane boru gozukecek ekranda maximum. ilki kaybolunca en sona ekleyecez
     firstPipeSpaceY = 2;
     DrawSinglePipe(firstPipeX,firstPipeSpaceY);
 
@@ -64,6 +66,9 @@ void DrawPipes()
 
     thirdPipeSpaceY = 1.5;
     DrawSinglePipe(thirdPipeX,thirdPipeSpaceY);
+
+    fourthPipeSpaceY = 1;
+    DrawSinglePipe(fourthPipeX,fourthPipeSpaceY);
 }
 
 
@@ -83,7 +88,7 @@ static void display(void)
 
 
     glPushMatrix();
-        glTranslated(-5,currentY,-10);
+        glTranslated(-8,currentY,-10);
         glRotated(a,0,0,1);
         glutSolidSphere(0.5,16,16);
     glPopMatrix();
@@ -124,7 +129,7 @@ int main(int argc, char *argv[])
     glutReshapeFunc(resize);
     glutDisplayFunc(display);
     glutSpecialFunc(KeyboardFunction);
-    glutTimerFunc(25,DecreaseYValue,0);
+    glutTimerFunc(25,DecreasePlayerYValue,0);
     glutIdleFunc(idle);
 
     glClearColor(1,1,1,1);
