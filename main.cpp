@@ -57,7 +57,6 @@ void DecreasePlayerYValue(int value)
 void MoveThePipes(int value)
 {
     isGameStarted = true;
-    srand(GetTickCount());
     for(int i = 0;i<pipeCount;i++)
     {
 
@@ -67,7 +66,7 @@ void MoveThePipes(int value)
             pipeXPositions[i] += pipeCount * distanceBetweenPipes;
             previousIndex = (i + pipeCount - 1) % pipeCount;
             double nextY = pipeYPositions[previousIndex];
-
+            srand(GetTickCount());
             double randomDifference = (3.0f * rand()) / RAND_MAX - 1.5;
             calculatedPipeY += randomDifference;
             calculatedPipeY = std::max(-3.0,calculatedPipeY);
