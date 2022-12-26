@@ -5,7 +5,7 @@
 
 static double time;
 static double playerY = 0;
-static double xProgress = -8;
+static double xProgress = -4;
 static double speedFactor = 0.5;
 static double playerSize = 0.5;
 static double timeSinceUpArrow = 0;
@@ -14,8 +14,8 @@ static double gravity = 0.035;
 static double gravityWithTime = 0.02;
 static double jumpPower = 1.5;
 
-double pipeXPositions[] = {-4,-0.5,3,6.5,9.5};
-double pipeYPositions[] = {2,1,-1,-2,0};
+double pipeXPositions[] = {-4,-0.5,3,6.5,9.5,13};
+double pipeYPositions[] = {2,1,-1,-2,0,-1};
 
 static double defaultPipeSpacing = 3;
 static double defaultPipeWidth = 1.5,defaultPipeHeight = 10;
@@ -34,13 +34,7 @@ static void resize(int width, int height)
 
 void UpdatePipePositions()
 {
-    for(int i = 0;i<5;i++)
-    {
-        pipeXPositions[i] += xProgress / 20;
-        printf("%f\n",pipeXPositions[i]);
-        if(pipeXPositions[i] < -10)
-          pipeXPositions[i] += 17;
-    }
+
 }
 
 
@@ -49,6 +43,7 @@ void ProgressThePlayer()
     const double time = glutGet(GLUT_ELAPSED_TIME) / 1000000.0;
     xProgress += time * speedFactor;
 }
+
 void DecreasePlayerYValue(int value)
 {
     timeSinceUpArrow += gravityWithTime * playerSize;
@@ -58,6 +53,17 @@ void DecreasePlayerYValue(int value)
     glutPostRedisplay();
     UpdatePipePositions();
     glutTimerFunc(25, DecreasePlayerYValue, 0);
+}
+
+void MoveThePipes(int value)
+{
+    for(int i = 0;i<6;i++)
+    {
+        pipeXPositions[i] += xProgress / 25;
+        if(pipeXPositions[i] < -10)
+          pipeXPositions[i] += 20.5;
+    }
+    glutTimerFunc(25, MoveThePipes, 0);
 }
 
 void DrawSinglePipe(double pipeX,double pipeSpaceY)
@@ -77,11 +83,10 @@ void DrawSinglePipe(double pipeX,double pipeSpaceY)
 
 void DrawPipes()
 {
-    for(int i = 0;i<5;i++)
+    for(int i = 0;i<6;i++)
     {
         DrawSinglePipe(pipeXPositions[i],pipeYPositions[i]);
     }
-
 }
 
 static void display(void)
@@ -102,8 +107,6 @@ static void display(void)
 
     glutSwapBuffers();
 }
-
-
 
 
 void KeyboardFunction(int key, int, int) {
@@ -131,12 +134,13 @@ int main(int argc, char *argv[])
     glutInitWindowPosition(10,10);
     glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
 
-    glutCreateWindow("FlappyBird");
+    glutCreateWindow("Flappy Bird");
 
     glutReshapeFunc(resize);
     glutDisplayFunc(display);
     glutSpecialFunc(KeyboardFunction);
     glutTimerFunc(25,DecreasePlayerYValue,0);
+    glutTimerFunc(25,MoveThePipes,1);
     glutIdleFunc(idle);
 
     glClearColor(1,1,1,1);
