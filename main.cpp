@@ -2,8 +2,12 @@
 #include <GL/freeglut.h>
 #include <stdlib.h>
 #include <cstdio>
+#include <cstdlib>
+#include <ctime>
+#include <iostream>
+#include <windows.h>
 
-static double time;
+static double gameTime;
 static double playerY = 0;
 static double speedFactor = 0.05;
 static double playerSize = 0.5;
@@ -12,10 +16,17 @@ static double calculatedY = 0;
 static double gravity = 0.035;
 static double gravityWithTime = 0.02;
 static double jumpPower = 1.5;
+static double playerX = -4;
+static double distanceBetweenPipes = 6;
+static int pipeCount = 4;
 
-double pipeXPositions[] = {-5,0,5,10,15,20};
-double pipeYPositions[] = {2,1,-1,-2,0,-1};
+double pipeXPositions[] = {0,distanceBetweenPipes,distanceBetweenPipes * 2,distanceBetweenPipes * 3};
+double pipeYPositions[] = {2,1,-1,-2};
 
+int nextPipeIndex = 0;
+int previousIndex = 0;
+double calculatedPipeY = 0;
+bool isGameStarted = false;
 static double defaultPipeSpacing = 3;
 static double defaultPipeWidth = 1.5,defaultPipeHeight = 10;
 
@@ -33,21 +44,44 @@ static void resize(int width, int height)
 
 void DecreasePlayerYValue(int value)
 {
-    timeSinceUpArrow += gravityWithTime * playerSize;
-
-    calculatedY = playerY - (timeSinceUpArrow + gravity) * playerSize;
-    playerY = std::max(-4.5,calculatedY);
+    if(isGameStarted)
+    {
+        timeSinceUpArrow += gravityWithTime * playerSize;
+        calculatedY = playerY - (timeSinceUpArrow + gravity) * playerSize;
+        playerY = std::max(-4.5,calculatedY);
+    }
     glutPostRedisplay();
     glutTimerFunc(25, DecreasePlayerYValue, 0);
 }
 
 void MoveThePipes(int value)
 {
-    for(int i = 0;i<6;i++)
+    isGameStarted = true;
+    srand(GetTickCount());
+    for(int i = 0;i<pipeCount;i++)
     {
+
         pipeXPositions[i] -= speedFactor;
-        if(pipeXPositions[i] < -15)
-          pipeXPositions[i] += 30;
+        if(pipeXPositions[i] < -(pipeCount / 2) * distanceBetweenPipes)
+        {
+            pipeXPositions[i] += pipeCount * distanceBetweenPipes;
+            previousIndex = (i + pipeCount - 1) % pipeCount;
+            double nextY = pipeYPositions[previousIndex];
+
+            double randomDifference = (3.0f * rand()) / RAND_MAX - 1.5;
+            calculatedPipeY += randomDifference;
+            calculatedPipeY = std::max(-3.0,calculatedPipeY);
+            calculatedPipeY = std::min(3.0,calculatedPipeY);
+            printf("%f\n",randomDifference);
+            pipeYPositions[i] = calculatedPipeY;
+        }
+
+        if(pipeXPositions[i] - playerX > 0 && pipeXPositions[i] - playerX < distanceBetweenPipes)
+        {
+
+            nextPipeIndex = i;
+        }
+
     }
     glutTimerFunc(10, MoveThePipes, 0);
 }
@@ -69,7 +103,7 @@ void DrawSinglePipe(double pipeX,double pipeSpaceY)
 
 void DrawPipes()
 {
-    for(int i = 0;i<6;i++)
+    for(int i = 0;i<pipeCount;i++)
     {
         DrawSinglePipe(pipeXPositions[i],pipeYPositions[i]);
     }
@@ -86,7 +120,7 @@ static void display(void)
 
 
     glPushMatrix();
-        glTranslated(-4,playerY,-10);
+        glTranslated(playerX,playerY,-10);
         glutSolidSphere(0.5,16,16);
     glPopMatrix();
 
@@ -94,16 +128,19 @@ static void display(void)
 }
 
 
-void KeyboardFunction(int key, int, int) {
-  switch (key) {
-    case GLUT_KEY_UP:
-        calculatedY = playerY + jumpPower * playerSize;
-        playerY = std::min(4.5,calculatedY);
-        timeSinceUpArrow = 0;
-        break;
-    default: return;
-  }
-  glutPostRedisplay();
+void KeyboardFunction(int key, int, int)
+{
+      if(!isGameStarted)
+        return;
+      switch (key) {
+        case GLUT_KEY_UP:
+            calculatedY = playerY + jumpPower * playerSize;
+            playerY = std::min(4.5,calculatedY);
+            timeSinceUpArrow = 0;
+            break;
+        default: return;
+      }
+      glutPostRedisplay();
 }
 
 static void idle(void)
@@ -114,6 +151,7 @@ static void idle(void)
 
 int main(int argc, char *argv[])
 {
+    srand(GetTickCount());
     glutInit(&argc, argv);
     glutInitWindowSize(640,480);
     glutInitWindowPosition(10,10);
@@ -125,7 +163,7 @@ int main(int argc, char *argv[])
     glutDisplayFunc(display);
     glutSpecialFunc(KeyboardFunction);
     glutTimerFunc(25,DecreasePlayerYValue,0);
-    glutTimerFunc(10,MoveThePipes,1);
+    glutTimerFunc(2000,MoveThePipes,1);
     glutIdleFunc(idle);
 
     glClearColor(1,1,1,1);
