@@ -5,8 +5,7 @@
 
 static double time;
 static double playerY = 0;
-static double xProgress = -4;
-static double speedFactor = 0.5;
+static double speedFactor = 0.05;
 static double playerSize = 0.5;
 static double timeSinceUpArrow = 0;
 static double calculatedY = 0;
@@ -14,7 +13,7 @@ static double gravity = 0.035;
 static double gravityWithTime = 0.02;
 static double jumpPower = 1.5;
 
-double pipeXPositions[] = {-4,-0.5,3,6.5,9.5,13};
+double pipeXPositions[] = {-5,0,5,10,15,20};
 double pipeYPositions[] = {2,1,-1,-2,0,-1};
 
 static double defaultPipeSpacing = 3;
@@ -32,18 +31,6 @@ static void resize(int width, int height)
     glLoadIdentity() ;
 }
 
-void UpdatePipePositions()
-{
-
-}
-
-
-void ProgressThePlayer()
-{
-    const double time = glutGet(GLUT_ELAPSED_TIME) / 1000000.0;
-    xProgress += time * speedFactor;
-}
-
 void DecreasePlayerYValue(int value)
 {
     timeSinceUpArrow += gravityWithTime * playerSize;
@@ -51,7 +38,6 @@ void DecreasePlayerYValue(int value)
     calculatedY = playerY - (timeSinceUpArrow + gravity) * playerSize;
     playerY = std::max(-4.5,calculatedY);
     glutPostRedisplay();
-    UpdatePipePositions();
     glutTimerFunc(25, DecreasePlayerYValue, 0);
 }
 
@@ -59,11 +45,11 @@ void MoveThePipes(int value)
 {
     for(int i = 0;i<6;i++)
     {
-        pipeXPositions[i] += xProgress / 25;
-        if(pipeXPositions[i] < -10)
-          pipeXPositions[i] += 20.5;
+        pipeXPositions[i] -= speedFactor;
+        if(pipeXPositions[i] < -15)
+          pipeXPositions[i] += 30;
     }
-    glutTimerFunc(25, MoveThePipes, 0);
+    glutTimerFunc(10, MoveThePipes, 0);
 }
 
 void DrawSinglePipe(double pipeX,double pipeSpaceY)
@@ -93,7 +79,6 @@ static void display(void)
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glColor3d(1,0,0);
-    ProgressThePlayer();
     DrawPipes();
 
     glColor3d(1.0,1.0,0);
@@ -101,7 +86,7 @@ static void display(void)
 
 
     glPushMatrix();
-        glTranslated(xProgress,playerY,-10);
+        glTranslated(-4,playerY,-10);
         glutSolidSphere(0.5,16,16);
     glPopMatrix();
 
@@ -140,7 +125,7 @@ int main(int argc, char *argv[])
     glutDisplayFunc(display);
     glutSpecialFunc(KeyboardFunction);
     glutTimerFunc(25,DecreasePlayerYValue,0);
-    glutTimerFunc(25,MoveThePipes,1);
+    glutTimerFunc(10,MoveThePipes,1);
     glutIdleFunc(idle);
 
     glClearColor(1,1,1,1);
