@@ -6,6 +6,7 @@
 #include <ctime>
 #include <iostream>
 #include <windows.h>
+#include <math.h>
 
 static double gameTime;
 static double playerY = 0;
@@ -27,8 +28,25 @@ int nextPipeIndex = 0;
 int previousIndex = 0;
 double calculatedPipeY = 0;
 bool isGameStarted = false;
+bool didCollide = false;
 static double defaultPipeSpacing = 3;
 static double defaultPipeWidth = 1.5,defaultPipeHeight = 10;
+
+float topPipeVertices[] =
+    {
+        0.0, 0.0, // left bot
+        0.0, 0.0, // right bot
+        0.0, 0.0, // left top
+        0.0, 0.0  // right top
+    };
+
+float botPipeVertices[] =
+    {
+        0.0, 0.0, // left top
+        0.0, 0.0, // right top
+        0.0, 0.0, // left bot
+        0.0, 0.0  // right bot
+    };
 
 static void resize(int width, int height)
 {
@@ -42,6 +60,55 @@ static void resize(int width, int height)
     glLoadIdentity() ;
 }
 
+bool CollisionControl()
+{
+    for(int i = 0;i<pipeCount;i++)
+    {
+        if(fabs(pipeXPositions[i] - playerX) > playerSize)
+            continue;
+
+        topPipeVertices[0] = pipeXPositions[i] - defaultPipeWidth / 2;
+        topPipeVertices[1] = pipeYPositions[i] + defaultPipeSpacing / 2;
+
+        topPipeVertices[2] = topPipeVertices[0] + defaultPipeWidth;
+        topPipeVertices[3] = topPipeVertices[1];
+
+        topPipeVertices[4] = topPipeVertices[0];
+        topPipeVertices[5] = topPipeVertices[1] + defaultPipeHeight;
+
+        topPipeVertices[6] = topPipeVertices[1];
+        topPipeVertices[7] = topPipeVertices[5];
+        //-----------------------------------------------------------------//
+        botPipeVertices[0] = pipeXPositions[i] - defaultPipeWidth / 2;
+        botPipeVertices[1] = pipeYPositions[i] - defaultPipeSpacing / 2;
+
+        botPipeVertices[2] = botPipeVertices[0] + defaultPipeWidth;
+        botPipeVertices[3] = botPipeVertices[1];
+
+        botPipeVertices[4] = botPipeVertices[0];
+        botPipeVertices[5] = botPipeVertices[1] - defaultPipeHeight;
+
+        botPipeVertices[6] = botPipeVertices[1];
+        botPipeVertices[7] = botPipeVertices[5];
+
+
+        if(playerY + playerSize >= topPipeVertices[1] && playerY - playerSize <= topPipeVertices[5])
+        {
+            if(playerX + playerSize > topPipeVertices[0] && playerX - playerSize < topPipeVertices[2])
+            {
+                return true;
+            }
+        }
+        if(playerY - playerSize <= botPipeVertices[1] && playerY + playerSize >= botPipeVertices[5])
+        {
+            if(playerX + playerSize > botPipeVertices[0] && playerX - playerSize < botPipeVertices[2])
+            {
+                return true;
+            }
+        }
+    }
+    return false;
+}
 void DecreasePlayerYValue(int value)
 {
     if(isGameStarted)
@@ -51,6 +118,10 @@ void DecreasePlayerYValue(int value)
         playerY = std::max(-4.5,calculatedY);
     }
     glutPostRedisplay();
+
+    didCollide = CollisionControl();
+    if(didCollide)
+        printf("Collided!\n");
     glutTimerFunc(25, DecreasePlayerYValue, 0);
 }
 
@@ -71,7 +142,6 @@ void MoveThePipes(int value)
             calculatedPipeY += randomDifference;
             calculatedPipeY = std::max(-3.0,calculatedPipeY);
             calculatedPipeY = std::min(3.0,calculatedPipeY);
-            printf("%f\n",randomDifference);
             pipeYPositions[i] = calculatedPipeY;
         }
 
