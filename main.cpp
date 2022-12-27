@@ -8,7 +8,6 @@
 #include <windows.h>
 #include <math.h>
 
-static double gameTime;
 static double playerY = 0;
 static double speedFactor = 0.05;
 static double playerSize = 0.5;
@@ -18,19 +17,23 @@ static double gravity = 0.035;
 static double gravityWithTime = 0.02;
 static double jumpPower = 1.5;
 static double playerX = -4;
+
 static double distanceBetweenPipes = 6;
 static int pipeCount = 4;
-
 double pipeXPositions[] = {0,distanceBetweenPipes,distanceBetweenPipes * 2,distanceBetweenPipes * 3};
 double pipeYPositions[] = {2,1,-1,-2};
+double calculatedPipeY = 0;
+static double defaultPipeSpacing = 3;
+static double defaultPipeWidth = 1.5,defaultPipeHeight = 10;
 
 int nextPipeIndex = 0;
 int previousIndex = 0;
-double calculatedPipeY = 0;
+int lastIndex = 0;
+int currentScore = 0;
+
 bool isGameStarted = false;
 bool didCollide = false;
-static double defaultPipeSpacing = 3;
-static double defaultPipeWidth = 1.5,defaultPipeHeight = 10;
+
 
 float topPipeVertices[] =
     {
@@ -147,7 +150,12 @@ void MoveThePipes(int value)
 
         if(pipeXPositions[i] - playerX > 0 && pipeXPositions[i] - playerX < distanceBetweenPipes)
         {
-
+            if(lastIndex != nextPipeIndex)
+            {
+                lastIndex = nextPipeIndex;
+                currentScore++;
+                printf("Score : %d\n",currentScore);
+            }
             nextPipeIndex = i;
         }
 
