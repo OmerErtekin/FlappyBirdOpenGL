@@ -9,7 +9,7 @@
 #include <math.h>
 
 static double playerY = 0;
-static double speedFactor = 0.05;
+static double speedFactor = 0.05,maxSpeedFactor = 0.10;
 static double playerSize = 0.5;
 static double timeSinceUpArrow = 0;
 static double calculatedY = 0;
@@ -128,6 +128,14 @@ void DecreasePlayerYValue(int value)
     glutTimerFunc(25, DecreasePlayerYValue, 0);
 }
 
+void IncreaseGameSpeed(int value)
+{
+    if(speedFactor >= maxSpeedFactor)
+        return;
+    speedFactor += 0.01;
+    glutTimerFunc(5000,IncreaseGameSpeed,0);
+}
+
 void MoveThePipes(int value)
 {
     isGameStarted = true;
@@ -241,6 +249,7 @@ int main(int argc, char *argv[])
     glutSpecialFunc(KeyboardFunction);
     glutTimerFunc(25,DecreasePlayerYValue,0);
     glutTimerFunc(2000,MoveThePipes,1);
+    glutTimerFunc(5000,IncreaseGameSpeed,0);
     glutIdleFunc(idle);
 
     glClearColor(1,1,1,1);
