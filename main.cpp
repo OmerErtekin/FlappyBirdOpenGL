@@ -7,6 +7,7 @@
 #include <iostream>
 #include <windows.h>
 #include <math.h>
+#include <string.h>
 
 static double playerY = 0;
 static double speedFactor = 0.05,maxSpeedFactor = 0.10;
@@ -51,6 +52,7 @@ float botPipeVertices[] =
         0.0, 0.0  // right bot
     };
 
+
 static void resize(int width, int height)
 {
     const float ar = (float) width / (float) height;
@@ -63,12 +65,12 @@ static void resize(int width, int height)
     glLoadIdentity() ;
 }
 
+
 bool CollisionControl()
 {
     for(int i = 0;i<pipeCount;i++)
     {
-        if(fabs(pipeXPositions[i] - playerX) > playerSize)
-            continue;
+        if(fabs(pipeXPositions[i] - playerX) > playerSize) continue;
 
         topPipeVertices[0] = pipeXPositions[i] - defaultPipeWidth / 2;
         topPipeVertices[1] = pipeYPositions[i] + defaultPipeSpacing / 2;
@@ -102,6 +104,7 @@ bool CollisionControl()
                 return true;
             }
         }
+
         if(playerY - playerSize <= botPipeVertices[1] && playerY + playerSize >= botPipeVertices[5])
         {
             if(playerX + playerSize > botPipeVertices[0] && playerX - playerSize < botPipeVertices[2])
@@ -110,8 +113,11 @@ bool CollisionControl()
             }
         }
     }
+
     return false;
 }
+
+
 void DecreasePlayerYValue(int value)
 {
     if(isGameStarted)
@@ -120,28 +126,68 @@ void DecreasePlayerYValue(int value)
         calculatedY = playerY - (timeSinceUpArrow + gravity) * playerSize;
         playerY = std::max(-4.5,calculatedY);
     }
+
     glutPostRedisplay();
 
     didCollide = CollisionControl();
-    if(didCollide)
-        printf("Collided!\n");
+    if(didCollide) printf("Collided!\n");
+
     glutTimerFunc(25, DecreasePlayerYValue, 0);
 }
 
+
 void IncreaseGameSpeed(int value)
 {
-    if(speedFactor >= maxSpeedFactor)
-        return;
+    if(speedFactor >= maxSpeedFactor) return;
+
     speedFactor += 0.01;
     glutTimerFunc(5000,IncreaseGameSpeed,0);
 }
 
+
+void startButton()
+{
+    glBegin(GL_QUADS);
+    glColor3f(1.0f, 0.0f, 0.0f);
+    glVertex2f(-1.5f, -1.5f);
+    glVertex2f( 1.5f, -1.5f);
+    glVertex2f( 1.5f,  1.5f);
+    glVertex2f(-1.5f,  1.5f);
+    glEnd();
+}
+
+
+void drawText(char *string)
+{
+   char *c;
+   glRasterPos3f(-2.0,0.0f, -9.0f);
+   for (c=string; *c != '\0'; c++)
+   {
+      glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, *c);
+   }
+}
+
+
+void scoreText(int score) {
+  std::string temp_str = std::to_string(score);
+  const char *string = temp_str.c_str();
+  glRasterPos3f(0.0, 4.0f, -9.0f);
+  glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, 'S');
+  glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, 'C');
+  glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, 'O');
+  glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, 'R');
+  glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, 'E');
+  glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, ':');
+  glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, ' ');
+  for (const char *c = string; *c != '\0'; c++) {
+    glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, *c);
+  }
+}
+
 void MoveThePipes(int value)
 {
-    isGameStarted = true;
     for(int i = 0;i<pipeCount;i++)
     {
-
         pipeXPositions[i] -= speedFactor;
         if(pipeXPositions[i] < -(pipeCount / 2) * distanceBetweenPipes)
         {
@@ -166,10 +212,19 @@ void MoveThePipes(int value)
             }
             nextPipeIndex = i;
         }
-
     }
+
     glutTimerFunc(10, MoveThePipes, 0);
 }
+
+void mouse(int button, int state, int x, int y) {
+  if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
+        if(isGameStarted) return;
+        isGameStarted = true;
+        glutTimerFunc(10, MoveThePipes, 0);
+  }
+}
+
 
 void DrawSinglePipe(double pipeX,double pipeSpaceY)
 {
@@ -186,6 +241,7 @@ void DrawSinglePipe(double pipeX,double pipeSpaceY)
     glPopMatrix();
 }
 
+
 void DrawPipes()
 {
     for(int i = 0;i<pipeCount;i++)
@@ -193,6 +249,7 @@ void DrawPipes()
         DrawSinglePipe(pipeXPositions[i],pipeYPositions[i]);
     }
 }
+
 
 static void display(void)
 {
@@ -203,11 +260,22 @@ static void display(void)
     glColor3d(1.0,1.0,0);
     glPushMatrix();
 
-
     glPushMatrix();
         glTranslated(playerX,playerY,-10);
         glutSolidSphere(0.5,16,16);
     glPopMatrix();
+
+    glPushMatrix();
+        startButton();
+    glPopMatrix();
+
+    scoreText(currentScore);
+
+    if(!isGameStarted){
+    char *s = "Oyuna baslamak icin tiklayin";
+    drawText(s);
+    }
+    glFlush();
 
     glutSwapBuffers();
 }
@@ -215,8 +283,8 @@ static void display(void)
 
 void KeyboardFunction(int key, int, int)
 {
-      if(!isGameStarted)
-        return;
+      if(!isGameStarted) return;
+
       switch (key) {
         case GLUT_KEY_UP:
             calculatedY = playerY + jumpPower * playerSize;
@@ -227,6 +295,7 @@ void KeyboardFunction(int key, int, int)
       }
       glutPostRedisplay();
 }
+
 
 static void idle(void)
 {
@@ -248,7 +317,7 @@ int main(int argc, char *argv[])
     glutDisplayFunc(display);
     glutSpecialFunc(KeyboardFunction);
     glutTimerFunc(25,DecreasePlayerYValue,0);
-    glutTimerFunc(2000,MoveThePipes,1);
+    //glutTimerFunc(2000,MoveThePipes,1);
     glutTimerFunc(5000,IncreaseGameSpeed,0);
     glutIdleFunc(idle);
 
@@ -264,7 +333,7 @@ int main(int argc, char *argv[])
     glEnable(GL_COLOR_MATERIAL);
     glEnable(GL_LIGHTING);
 
-
+    glutMouseFunc(mouse);
     glutMainLoop();
 
     return EXIT_SUCCESS;
