@@ -56,7 +56,7 @@
 1426342528 c:\program files\codeblocks\mingw\x86_64-w64-mingw32\include\gl\glut.h
 	"freeglut_std.h"
 
-1669910780 c:\program files\codeblocks\mingw\x86_64-w64-mingw32\include\gl\freeglut_std.h
+1426342528 c:\program files\codeblocks\mingw\x86_64-w64-mingw32\include\gl\freeglut_std.h
 	<windows.h>
 	<EGL/egl.h>
 	<GLES/gl.h>
@@ -895,14 +895,14 @@
 1526093414 c:\program files\codeblocks\mingw\x86_64-w64-mingw32\include\gl\glu.h
 	<GL/gl.h>
 
-1669910782 c:\program files\codeblocks\mingw\x86_64-w64-mingw32\include\gl\freeglut.h
+1426342528 c:\program files\codeblocks\mingw\x86_64-w64-mingw32\include\gl\freeglut.h
 	"freeglut_std.h"
 	"freeglut_ext.h"
 
-1669910778 c:\program files\codeblocks\mingw\x86_64-w64-mingw32\include\gl\freeglut_ext.h
+1426342528 c:\program files\codeblocks\mingw\x86_64-w64-mingw32\include\gl\freeglut_ext.h
 	<stdarg.h>
 
-1672122125 source:d:\glutproject\flappybirdopengl\main.cpp
+1672335498 source:d:\glutproject\flappybirdopengl\main.cpp
 	<algorithm>
 	<GL/freeglut.h>
 	<stdlib.h>
@@ -912,6 +912,7 @@
 	<iostream>
 	<windows.h>
 	<math.h>
+	<string.h>
 
 1526093416 c:\program files\codeblocks\mingw\x86_64-w64-mingw32\include\math.h
 	<crtdefs.h>
