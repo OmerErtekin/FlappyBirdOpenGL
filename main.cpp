@@ -8,6 +8,7 @@
 #include <windows.h>
 #include <math.h>
 #include <string.h>
+#include "bgdrawer.h"
 
 static double playerY = 0;
 static double speedFactor = 0.05,maxSpeedFactor = 0.10,startSpeedFactor = 0.05;
@@ -259,6 +260,7 @@ void DrawPipes()
 static void display(void)
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    drawTextureQuad();
     glColor3d(1,0,0);
     DrawPipes();
 
@@ -350,6 +352,7 @@ int main(int argc, char *argv[])
 
     glutCreateWindow("Flappy Bird");
 
+    initFour();
     glutReshapeFunc(resize);
     glutDisplayFunc(display);
     glutSpecialFunc(KeyboardFunction);
