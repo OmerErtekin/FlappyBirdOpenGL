@@ -8,10 +8,9 @@
 #include <windows.h>
 #include <math.h>
 #include <string.h>
-#include "bgdrawer.h"
 
 static double playerY = 0;
-static double speedFactor = 0.05,maxSpeedFactor = 0.10,startSpeedFactor = 0.05;
+static double speedFactor = 0.05,maxSpeedFactor = 0.15,startSpeedFactor = 0.05;
 static double playerSize = 0.5;
 static double timeSinceUpArrow = 0;
 static double calculatedY = 0;
@@ -65,6 +64,7 @@ void drawText(char *string)
       glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, *c);
    }
 }
+
 
 
 static void resize(int width, int height)
@@ -213,7 +213,6 @@ void MoveThePipes(int value)
             {
                 lastIndex = nextPipeIndex;
                 currentScore++;
-                printf("Score : %d\n",currentScore);
             }
             nextPipeIndex = i;
         }
@@ -226,6 +225,7 @@ void mouse(int button, int state, int x, int y) {
   if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
         if(isGameStarted) return;
         isGameStarted = true;
+        glutTimerFunc(500,IncreaseGameSpeed,0);
         glutTimerFunc(25,DecreasePlayerYValue,0);
         glutTimerFunc(10, MoveThePipes, 0);
   }
@@ -259,13 +259,11 @@ void DrawPipes()
 
 static void display(void)
 {
+    glClearColor(0.71,0.81,0.85,1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    drawTextureQuad();
     glColor3d(1,0,0);
     DrawPipes();
-
     glColor3d(1.0,1.0,0);
-    glPushMatrix();
 
     glPushMatrix();
         glTranslated(playerX,playerY,-10);
@@ -284,7 +282,7 @@ static void display(void)
     }
     if(didCollide)
     {
-        char *dieText = "Oldun!\nYeniden baslamak icin f1 e bas";
+        char *dieText = "Oldun!\nYeniden baslamak icin R'ye bas";
         drawText(dieText);
     }
     glFlush();
@@ -316,23 +314,22 @@ void ResetTheGame()
 
 }
 
-void KeyboardFunction(int key, int, int)
+void KeyboardFunction(unsigned char key,int,int)
 {
-      ;
-
-      switch (key) {
-        case GLUT_KEY_UP:
-            if(!isGameStarted || didCollide) return;
-            calculatedY = playerY + jumpPower * playerSize;
-            playerY = std::min(4.5,calculatedY);
-            timeSinceUpArrow = 0;
-            break;
-        case GLUT_KEY_F1:
-            if(!didCollide) return;
-            ResetTheGame();
-        default: return;
-      }
-      glutPostRedisplay();
+    switch (key)
+    {
+    case 32: //space bar
+        if(!isGameStarted || didCollide) return;
+        calculatedY = playerY + jumpPower * playerSize;
+        playerY = std::min(4.5,calculatedY);
+        timeSinceUpArrow = 0;
+        break;
+    case 114:
+        if(!didCollide) return;
+        ResetTheGame();
+    default: return;
+    }
+    glutPostRedisplay();
 }
 
 
@@ -346,16 +343,16 @@ int main(int argc, char *argv[])
 {
     srand(GetTickCount());
     glutInit(&argc, argv);
+
     glutInitWindowSize(640,480);
     glutInitWindowPosition(10,10);
     glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
 
     glutCreateWindow("Flappy Bird");
 
-    initFour();
     glutReshapeFunc(resize);
     glutDisplayFunc(display);
-    glutSpecialFunc(KeyboardFunction);
+    glutKeyboardFunc(KeyboardFunction);
     glutIdleFunc(idle);
 
     glClearColor(1,1,1,1);
