@@ -12,7 +12,7 @@
 static double playerY = 0;
 static double speedFactor = 0.05,maxSpeedFactor = 0.15,startSpeedFactor = 0.05;
 static double playerSize = 0.5;
-static double timeSinceUpArrow = 0;
+static double timeSinceJump = 0;
 static double calculatedY = 0;
 static double gravity = 0.035;
 static double gravityWithTime = 0.02;
@@ -137,8 +137,8 @@ void DecreasePlayerYValue(int value)
     if(didCollide) return;
     if(isGameStarted)
     {
-        timeSinceUpArrow += gravityWithTime * playerSize;
-        calculatedY = playerY - (timeSinceUpArrow + gravity) * playerSize;
+        timeSinceJump += gravityWithTime * playerSize;
+        calculatedY = playerY - (timeSinceJump + gravity) * playerSize;
         playerY = std::max(-4.5,calculatedY);
     }
 
@@ -156,18 +156,6 @@ void IncreaseGameSpeed(int value)
 
     speedFactor += 0.001;
     glutTimerFunc(500,IncreaseGameSpeed,0);
-}
-
-
-void startButton()
-{
-    glBegin(GL_QUADS);
-    glColor3f(1.0f, 0.0f, 0.0f);
-    glVertex2f(-1.5f, -1.5f);
-    glVertex2f( 1.5f, -1.5f);
-    glVertex2f( 1.5f,  1.5f);
-    glVertex2f(-1.5f,  1.5f);
-    glEnd();
 }
 
 
@@ -270,10 +258,6 @@ static void display(void)
         glutSolidSphere(0.5,16,16);
     glPopMatrix();
 
-    glPushMatrix();
-        startButton();
-    glPopMatrix();
-
     scoreText(currentScore);
 
     if(!isGameStarted){
@@ -300,7 +284,7 @@ void ResetTheGame()
     didCollide = false;
     isGameStarted = true;
     currentScore = 0;
-    timeSinceUpArrow = 0;
+    timeSinceJump = 0;
     speedFactor = startSpeedFactor;
 
     for(int i = 0;i<pipeCount;i++)
@@ -322,7 +306,7 @@ void KeyboardFunction(unsigned char key,int,int)
         if(!isGameStarted || didCollide) return;
         calculatedY = playerY + jumpPower * playerSize;
         playerY = std::min(4.5,calculatedY);
-        timeSinceUpArrow = 0;
+        timeSinceJump = 0;
         break;
     case 114:
         if(!didCollide) return;
