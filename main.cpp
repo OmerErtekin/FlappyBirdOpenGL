@@ -65,7 +65,30 @@ void drawText(char *string)
    }
 }
 
+void DrawCloud()
+{
+    glColor3f(1.0,1.0,1.0);
+    glPushMatrix();
+    glTranslated(0,0, -15);
+    glPushMatrix();
+    glTranslated(4,4.5, 0);
+    glutSolidSphere(1, 5, 5);
+    glPopMatrix();
+    glPushMatrix();
+    glTranslated(4.075,4.6, 0);
+    glutSolidSphere(1, 5, 5);
+    glPopMatrix();
+    glPushMatrix();
+    glTranslated(4.15,4.5, 0);
+    glutSolidSphere(1, 5, 5);
+    glPopMatrix();
+    glPushMatrix();
+    glTranslated(4.075,4.4, 0);
+    glutSolidSphere(1, 5, 5);
+    glPopMatrix();
+    glPopMatrix();
 
+}
 
 static void resize(int width, int height)
 {
@@ -212,6 +235,7 @@ void MoveThePipes(int value)
 void mouse(int button, int state, int x, int y) {
   if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
         if(isGameStarted) return;
+
         isGameStarted = true;
         glutTimerFunc(500,IncreaseGameSpeed,0);
         glutTimerFunc(25,DecreasePlayerYValue,0);
@@ -247,11 +271,21 @@ void DrawPipes()
 
 static void display(void)
 {
-    glClearColor(0.71,0.81,0.85,1.0);
+    if(!didCollide)
+        glClearColor(0.52,0.807,0.95,1.0);
+    else
+        glClearColor(0.5,0.3,0.25,1);
+
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glColor3d(1,0,0);
+
     DrawPipes();
-    glColor3d(1.0,1.0,0);
+
+    glColor3d(1,0,0);
+    if(!didCollide)
+        glColor3d(1.0,1.0,0);
+    else
+        glColor3d(0,0,0);
+
 
     glPushMatrix();
         glTranslated(playerX,playerY,-10);
@@ -264,11 +298,12 @@ static void display(void)
     char *s = "Oyuna baslamak icin tiklayin";
     drawText(s);
     }
-    if(didCollide)
-    {
+
+    if(didCollide){
         char *dieText = "Oldun!\nYeniden baslamak icin R'ye bas";
         drawText(dieText);
     }
+
     glFlush();
 
     glutSwapBuffers();
@@ -292,11 +327,12 @@ void ResetTheGame()
         pipeXPositions[i] = startPipeXPoses[i];
         pipeYPositions[i] = startPipeYPoses[i];
     }
+
     glutTimerFunc(25, DecreasePlayerYValue, 0);
     glutTimerFunc(10,MoveThePipes,0);
     glutTimerFunc(500,IncreaseGameSpeed,0);
-
 }
+
 
 void KeyboardFunction(unsigned char key,int,int)
 {
@@ -309,7 +345,8 @@ void KeyboardFunction(unsigned char key,int,int)
         timeSinceJump = 0;
         break;
     case 114:
-        if(!didCollide) return;
+        if(!didCollide)
+            return;
         ResetTheGame();
     default: return;
     }
